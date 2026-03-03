@@ -30,6 +30,7 @@ def run_gui(config=None):
     hold_mode = CheckBox(top_bar, text="Hold Mode", align="right")
     hold_mode.value = True
     burst_timer = {"id": None}
+    hold_timer = {"id": None}
 
     # ── Main panels (drive + arm side by side) ─────────
     panels = Box(app, align="top", width="fill", height="fill",
@@ -45,8 +46,20 @@ def run_gui(config=None):
     # ── Tank helpers ───────────────────────────────────
 
     def bind_hold(btn, char):
-        btn.when_left_button_pressed = lambda: send(char)
-        btn.when_left_button_released = lambda: send("O")
+        def start():
+            if hold_timer["id"] is not None:
+                app.cancel(hold_timer["id"])
+            send(char)
+            hold_timer["id"] = app.repeat(100, lambda: send(char))
+
+        def stop():
+            if hold_timer["id"] is not None:
+                app.cancel(hold_timer["id"])
+                hold_timer["id"] = None
+            send("O")
+
+        btn.when_left_button_pressed = start
+        btn.when_left_button_released = stop
         btn.update_command(lambda: None)
 
     def bind_burst(btn, char):
@@ -110,8 +123,7 @@ def run_gui(config=None):
         "Wrist":  ("A", "B", "a"),
         "Elbow":  ("C", "D", "c"),
         "Arm":    ("G", "H", "g"),
-        "Hand":   ("E", "F", "e"),
-        "Device": ("I", "J", "i"),
+        "Grip":   ("I", "J", "i"),
     }
 
     for row, (label, chars) in enumerate(arm_cmds.items()):
@@ -129,14 +141,6 @@ def run_gui(config=None):
         minus_btn.when_left_button_pressed = make_arm_press(down_char)
         minus_btn.when_left_button_released = make_arm_release(stop_char)
         minus_btn.update_command(lambda: None)
-
-    # ── Emergency stop ─────────────────────────────────
-    bottom = Box(app, align="bottom", width="fill")
-    estop = PushButton(bottom, text="EMERGENCY STOP", width="fill", height=3)
-    estop.bg = "red"
-    estop.text_color = "white"
-    estop.text_size = 16
-    estop.update_command(lambda: send("O"))
 
     app.display()
 
