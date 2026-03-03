@@ -17,16 +17,21 @@ def run_gui(config=None):
     def send(char):
         ser.write(char.encode())
 
-    def on_close():
-        for char in "Oacgi":
-            send(char)
-        ser.close()
-        app.destroy()
-
     app = App(title="Op Gas Valve - Robot Controller", width=800, height=600)
-    app.when_closed = on_close
 
-    burst_timer = {"id": None}
+    # ── Burst timer helper ────────────────────────────────
+    timers = {}
+
+    def make_burst(start_char, stop_char, key, slider):
+        def stop():
+            send(stop_char)
+            timers.pop(key, None)
+        def burst():
+            if key in timers:
+                app.cancel(timers[key])
+            send(start_char)
+            timers[key] = app.after(int(slider.value), stop)
+        return burst
 
     # ── Settings bar (burst duration sliders) ──────────
     # Created before panels so tkinter reserves space at the bottom first.
@@ -55,31 +60,25 @@ def run_gui(config=None):
 
     dpad = Box(tank_box, layout="grid")
 
-    # ── Tank d-pad buttons ─────────────────────────────
-    tank_cmds = {
-        "Forward": "M", "Backward": "N",
-        "Left": "K", "Right": "L",
+    tank_buttons = {
+        "Forward":  ("M", [1, 0]),
+        "Left":     ("K", [0, 1]),
+        "Right":    ("L", [2, 1]),
+        "Backward": ("N", [1, 2]),
     }
-    tank_grid = {
-        "Forward":  [1, 0],
-        "Left":     [0, 1],
-        "Right":    [2, 1],
-        "Backward": [1, 2],
-    }
-    def make_burst(char):
-        def burst():
-            if burst_timer["id"] is not None:
-                app.cancel(burst_timer["id"])
-            send(char)
-            burst_timer["id"] = app.after(int(tank_slider.value), lambda: send("O"))
-        return burst
 
-    for label, pos in tank_grid.items():
+    for label, (cmd, pos) in tank_buttons.items():
         PushButton(dpad, text=label, grid=pos, width=12, height=3,
-                   command=make_burst(tank_cmds[label]))
+                   command=make_burst(cmd, "O", "tank", tank_slider))
+
+    def stop_tank():
+        if "tank" in timers:
+            app.cancel(timers["tank"])
+            timers.pop("tank")
+        send("O")
 
     stop_btn = PushButton(dpad, text="Stop", grid=[1, 1], width=12, height=3,
-                          command=lambda: send("O"))
+                          command=stop_tank)
     stop_btn.bg = "#ff6666"
 
     # ── Arm panel ──────────────────────────────────────
@@ -89,17 +88,6 @@ def run_gui(config=None):
 
     arm_grid = Box(arm_box, layout="grid")
 
-    # ── Arm helpers ────────────────────────────────────
-    arm_timers = {}
-
-    def make_arm_burst(start_char, stop_char, key):
-        def burst():
-            if key in arm_timers:
-                app.cancel(arm_timers[key])
-            send(start_char)
-            arm_timers[key] = app.after(int(arm_slider.value), lambda: send(stop_char))
-        return burst
-
     arm_cmds = {
         "Wrist":  ("A", "B", "a"),
         "Elbow":  ("C", "D", "c"),
@@ -107,15 +95,22 @@ def run_gui(config=None):
         "Grip":   ("I", "J", "i"),
     }
 
-    for row, (label, chars) in enumerate(arm_cmds.items()):
-        up_char, down_char, stop_char = chars
+    for row, (label, (up, down, stop)) in enumerate(arm_cmds.items()):
         Text(arm_grid, text=label, grid=[0, row], width=8, align="left")
-
         PushButton(arm_grid, text="+", grid=[1, row], width=6, height=3,
-                   command=make_arm_burst(up_char, stop_char, label))
+                   command=make_burst(up, stop, label, arm_slider))
         PushButton(arm_grid, text="-", grid=[2, row], width=6, height=3,
-                   command=make_arm_burst(down_char, stop_char, label))
+                   command=make_burst(down, stop, label, arm_slider))
 
+    # ── Cleanup on close ──────────────────────────────
+    def on_close():
+        send("O")
+        for _, _, stop_char in arm_cmds.values():
+            send(stop_char)
+        ser.close()
+        app.destroy()
+
+    app.when_closed = on_close
     app.display()
 
 
