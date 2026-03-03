@@ -109,6 +109,12 @@ def run_gui(config=None):
             app.cancel(arm_timers[key])
             del arm_timers[key]
 
+    def make_arm_press(c, k):
+        return lambda: arm_press(c, k)
+
+    def make_arm_release(k):
+        return lambda: arm_release(k)
+
     # Arm controls
     arm_layout = [
         ("Wrist",  4, 1),
@@ -124,14 +130,14 @@ def run_gui(config=None):
 
         plus_key = f"{label}_plus"
         plus_btn = PushButton(app, text="+", grid=[col+1, row], width=10, height=3)
-        plus_btn.when_left_button_pressed = lambda c=plus_char, k=plus_key: arm_press(c, k)
-        plus_btn.when_left_button_released = lambda k=plus_key: arm_release(k)
+        plus_btn.when_left_button_pressed = make_arm_press(plus_char, plus_key)
+        plus_btn.when_left_button_released = make_arm_release(plus_key)
         plus_btn.update_command(lambda: None)
 
         minus_key = f"{label}_minus"
         minus_btn = PushButton(app, text="-", grid=[col+1, row+1], width=10, height=3)
-        minus_btn.when_left_button_pressed = lambda c=minus_char, k=minus_key: arm_press(c, k)
-        minus_btn.when_left_button_released = lambda k=minus_key: arm_release(k)
+        minus_btn.when_left_button_pressed = make_arm_press(minus_char, minus_key)
+        minus_btn.when_left_button_released = make_arm_release(minus_key)
         minus_btn.update_command(lambda: None)
 
     app.display()
