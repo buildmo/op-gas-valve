@@ -46,20 +46,23 @@ def run_gui(config=None):
     # ── Tank helpers ───────────────────────────────────
 
     def bind_hold(btn, char):
-        def start():
+        def start(event=None):
             if hold_timer["id"] is not None:
                 app.cancel(hold_timer["id"])
             send(char)
             hold_timer["id"] = app.repeat(100, lambda: send(char))
 
-        def stop():
+        def stop(event=None):
             if hold_timer["id"] is not None:
                 app.cancel(hold_timer["id"])
                 hold_timer["id"] = None
             send("O")
 
-        btn.when_left_button_pressed = start
-        btn.update_command(stop)
+        btn.when_left_button_pressed = None
+        btn.when_left_button_released = None
+        btn.update_command(lambda: None)
+        btn.tk.bind("<ButtonPress-1>", start)
+        btn.tk.bind("<ButtonRelease-1>", stop)
 
     def bind_burst(btn, char):
         btn.when_left_button_pressed = None
