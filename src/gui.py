@@ -1,4 +1,4 @@
-from guizero import App, Box, Text, PushButton, CheckBox
+from guizero import App, Box, Text, PushButton
 import serial
 import time
 
@@ -25,12 +25,7 @@ def run_gui(config=None):
     app = App(title="Op Gas Valve - Robot Controller", width=800, height=600)
     app.when_closed = on_close
 
-    # ── Top bar ────────────────────────────────────────
-    top_bar = Box(app, align="top", width="fill")
-    hold_mode = CheckBox(top_bar, text="Hold Mode", align="right")
-    hold_mode.value = True
     burst_timer = {"id": None}
-    hold_timer = {"id": None}
 
     # ── Main panels (drive + arm side by side) ─────────
     panels = Box(app, align="top", width="fill", height="fill",
@@ -43,46 +38,6 @@ def run_gui(config=None):
 
     dpad = Box(tank_box, layout="grid")
 
-    # ── Tank helpers ───────────────────────────────────
-
-    def bind_hold(btn, char):
-        def start(event=None):
-            if hold_timer["id"] is not None:
-                app.cancel(hold_timer["id"])
-            send(char)
-            hold_timer["id"] = app.repeat(100, lambda: send(char))
-
-        def stop(event=None):
-            if hold_timer["id"] is not None:
-                app.cancel(hold_timer["id"])
-                hold_timer["id"] = None
-            send("O")
-
-        btn.when_left_button_pressed = None
-        btn.when_left_button_released = None
-        btn.update_command(lambda: None)
-        btn.tk.bind("<ButtonPress-1>", start)
-        btn.tk.bind("<ButtonRelease-1>", stop)
-
-    def bind_burst(btn, char):
-        btn.when_left_button_pressed = None
-        btn.when_left_button_released = None
-
-        def burst():
-            if burst_timer["id"] is not None:
-                app.cancel(burst_timer["id"])
-            send(char)
-            burst_timer["id"] = app.after(500, lambda: send("O"))
-
-        btn.update_command(burst)
-
-    def rebind_tank():
-        for btn, char in tank_buttons:
-            if hold_mode.value:
-                bind_hold(btn, char)
-            else:
-                bind_burst(btn, char)
-
     # ── Tank d-pad buttons ─────────────────────────────
     tank_cmds = {
         "Forward": "M", "Backward": "N",
@@ -94,17 +49,21 @@ def run_gui(config=None):
         "Right":    [2, 1],
         "Backward": [1, 2],
     }
-    tank_buttons = []
+    def make_burst(char):
+        def burst():
+            if burst_timer["id"] is not None:
+                app.cancel(burst_timer["id"])
+            send(char)
+            burst_timer["id"] = app.after(500, lambda: send("O"))
+        return burst
+
     for label, pos in tank_grid.items():
-        btn = PushButton(dpad, text=label, grid=pos, width=12, height=3)
-        tank_buttons.append((btn, tank_cmds[label]))
+        PushButton(dpad, text=label, grid=pos, width=12, height=3,
+                   command=make_burst(tank_cmds[label]))
 
-    stop_btn = PushButton(dpad, text="Stop", grid=[1, 1], width=12, height=3)
-    stop_btn.update_command(lambda: send("O"))
+    stop_btn = PushButton(dpad, text="Stop", grid=[1, 1], width=12, height=3,
+                          command=lambda: send("O"))
     stop_btn.bg = "#ff6666"
-
-    hold_mode.update_command(rebind_tank)
-    rebind_tank()
 
     # ── Arm panel ──────────────────────────────────────
     arm_box = Box(panels, grid=[1, 0], border=True)
