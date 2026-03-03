@@ -1,4 +1,4 @@
-from guizero import App, Box, Text, PushButton
+from guizero import App, Box, Text, PushButton, Slider
 import serial
 import time
 
@@ -55,7 +55,7 @@ def run_gui(config=None):
             if burst_timer["id"] is not None:
                 app.cancel(burst_timer["id"])
             send(char)
-            burst_timer["id"] = app.after(500, lambda: send("O"))
+            burst_timer["id"] = app.after(int(tank_slider.value), lambda: send("O"))
         return burst
 
     for label, pos in tank_grid.items():
@@ -81,7 +81,7 @@ def run_gui(config=None):
             if key in arm_timers:
                 app.cancel(arm_timers[key])
             send(start_char)
-            arm_timers[key] = app.after(500, lambda: send(stop_char))
+            arm_timers[key] = app.after(int(arm_slider.value), lambda: send(stop_char))
         return burst
 
     arm_cmds = {
@@ -99,6 +99,21 @@ def run_gui(config=None):
                    command=make_arm_burst(up_char, stop_char, label))
         PushButton(arm_grid, text="-", grid=[2, row], width=6, height=3,
                    command=make_arm_burst(down_char, stop_char, label))
+
+    # ── Settings bar (burst duration sliders) ──────────
+    settings_bar = Box(app, align="bottom", width="fill")
+
+    tank_row = Box(settings_bar, width="fill", align="top")
+    Text(tank_row, text="Tank speed", align="left", width=10)
+    tank_slider = Slider(tank_row, start=100, end=2000, align="left")
+    tank_slider.value = 500
+    Text(tank_row, text="ms", align="left")
+
+    arm_row = Box(settings_bar, width="fill", align="top")
+    Text(arm_row, text="Arm speed", align="left", width=10)
+    arm_slider = Slider(arm_row, start=100, end=2000, align="left")
+    arm_slider.value = 500
+    Text(arm_row, text="ms", align="left")
 
     app.display()
 
