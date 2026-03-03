@@ -37,7 +37,8 @@ def run_gui(config=None):
         "Device": ("I", "J"),
     }
 
-    app = App(title="Op Gas Valve - Robot Controller", layout="grid")
+    app = App(title="Op Gas Valve - Robot Controller", layout="grid",
+              width=800, height=600)
     app.when_closed = on_close
 
     # ── Hold / Burst mode toggle ─────────────────────────
@@ -85,10 +86,10 @@ def run_gui(config=None):
         "Right":    [3, 2],
     }
     for label, pos in tank_grid.items():
-        btn = PushButton(app, text=label, grid=pos, width=20, height=7)
+        btn = PushButton(app, text=label, grid=pos, width=10, height=3)
         tank_buttons.append((btn, tank_cmds[label]))
 
-    PushButton(app, command=lambda: send("O"), text="Stop", grid=[2, 2], width=20, height=7)
+    PushButton(app, command=lambda: send("O"), text="Stop", grid=[2, 2], width=10, height=3)
 
     hold_mode.update_command(rebind_tank)
     rebind_tank()  # apply initial mode
@@ -119,16 +120,16 @@ def run_gui(config=None):
 
     for label, col, row in arm_layout:
         plus_char, minus_char = arm_cmds[label]
-        Text(app, text=label, grid=[col, row], width=20, height=7)
+        Text(app, text=label, grid=[col, row], width=10, height=3)
 
         plus_key = f"{label}_plus"
-        plus_btn = PushButton(app, text="+", grid=[col+1, row], width=20, height=7)
+        plus_btn = PushButton(app, text="+", grid=[col+1, row], width=10, height=3)
         plus_btn.when_left_button_pressed = lambda c=plus_char, k=plus_key: arm_press(c, k)
         plus_btn.when_left_button_released = lambda k=plus_key: arm_release(k)
         plus_btn.update_command(lambda: None)
 
         minus_key = f"{label}_minus"
-        minus_btn = PushButton(app, text="-", grid=[col+1, row+1], width=20, height=7)
+        minus_btn = PushButton(app, text="-", grid=[col+1, row+1], width=10, height=3)
         minus_btn.when_left_button_pressed = lambda c=minus_char, k=minus_key: arm_press(c, k)
         minus_btn.when_left_button_released = lambda k=minus_key: arm_release(k)
         minus_btn.update_command(lambda: None)
