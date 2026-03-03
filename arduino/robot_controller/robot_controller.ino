@@ -119,10 +119,10 @@ void loop() {
       case 'J':
         fingersDown();
         break;
-      case 'L':
+      case 'K':
         turnLeft();
         break;
-      case 'K':
+      case 'L':
         turnRight();
         break;
       case 'M':
@@ -131,9 +131,9 @@ void loop() {
       case 'N':
         backward();
         break;
-       /* case 'O':
-        void stop();
-        break;*/
+      case 'O':
+        stop();
+        break;
     }
   }
 }
