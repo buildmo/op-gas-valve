@@ -20,3 +20,6 @@ if __name__ == "__main__":
     config = load_config()
     device = config["device"]
     print(f"Running on {device['name']} (role: {device['role']})")
+
+    from gui import run_gui
+    run_gui(config)
