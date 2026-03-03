@@ -18,7 +18,8 @@ def run_gui(config=None):
         ser.write(char.encode())
 
     def on_close():
-        send("O")
+        for char in "Oacgi":
+            send(char)
         ser.close()
         app.destroy()
 
@@ -73,12 +74,15 @@ def run_gui(config=None):
     arm_grid = Box(arm_box, layout="grid")
 
     # ── Arm helpers ────────────────────────────────────
+    arm_timers = {}
 
-    def make_arm_press(start_char):
-        return lambda: send(start_char)
-
-    def make_arm_release(stop_char):
-        return lambda: send(stop_char)
+    def make_arm_burst(start_char, stop_char, key):
+        def burst():
+            if key in arm_timers:
+                app.cancel(arm_timers[key])
+            send(start_char)
+            arm_timers[key] = app.after(500, lambda: send(stop_char))
+        return burst
 
     arm_cmds = {
         "Wrist":  ("A", "B", "a"),
@@ -91,17 +95,10 @@ def run_gui(config=None):
         up_char, down_char, stop_char = chars
         Text(arm_grid, text=label, grid=[0, row], width=8, align="left")
 
-        plus_btn = PushButton(arm_grid, text="+", grid=[1, row],
-                              width=6, height=3)
-        plus_btn.when_left_button_pressed = make_arm_press(up_char)
-        plus_btn.when_left_button_released = make_arm_release(stop_char)
-        plus_btn.update_command(lambda: None)
-
-        minus_btn = PushButton(arm_grid, text="-", grid=[2, row],
-                               width=6, height=3)
-        minus_btn.when_left_button_pressed = make_arm_press(down_char)
-        minus_btn.when_left_button_released = make_arm_release(stop_char)
-        minus_btn.update_command(lambda: None)
+        PushButton(arm_grid, text="+", grid=[1, row], width=6, height=3,
+                   command=make_arm_burst(up_char, stop_char, label))
+        PushButton(arm_grid, text="-", grid=[2, row], width=6, height=3,
+                   command=make_arm_burst(down_char, stop_char, label))
 
     app.display()
 

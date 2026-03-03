@@ -1,56 +1,39 @@
 #include <Servo.h>
-#define speedL 200
-#define speedR 220
-char c;
-// ── Tank ────────────────────────────────────────────── 
-int EN_A = 6;  //controls the speed of motor A
-int IN1 = 4;   //motor A direction
-int IN2 = 3;   //motor A direction
-int IN3 = 7;   //motor B direction
-int IN4 = 8;   //motor B direction
-int EN_B = 5;  //controls the speed of motor B
 
-// ── WRIST ──────────────────────────────────────────────
-Servo wrist;
-const int wristPin = 10;
-const int minAngle_wrist = 45;
-const int maxAngle_wrist = 135;
-const int stepDegrees = 2;
-int currentAngle_wrist = 90;
+// ── Motor speeds ────────────────────────────────────────
+#define SPEED_L 200
+#define SPEED_R 220
 
-// ── ELBOW ──────────────────────────────────────────────
-Servo elbow;
-const int elbowPin = 12;
-const int minAngle_elbow = 0;
-const int maxAngle_elbow = 90;
-int currentAngle_elbow = 45;
+// ── Motor pins ──────────────────────────────────────────
+const int EN_A = 6;
+const int IN1  = 4;
+const int IN2  = 3;
+const int IN3  = 7;
+const int IN4  = 8;
+const int EN_B = 5;
 
-// ── HAND ───────────────────────────────────────────────
-Servo hand;
-const int handPin = 0;
-const int minAngle_hand = 90;
-const int maxAngle_hand = 135;
-int currentAngle_hand = 90;
+// ── Servo config ────────────────────────────────────────
+// Index: 0=Wrist, 1=Elbow, 2=Arm, 3=Grip
+const int NUM_SERVOS    = 4;
+const int servoPins[4]  = {10, 12, 9, 11};
+const int servoMin[4]   = {45,  0, 70,  0};
+const int servoMax[4]   = {135, 90, 135, 180};
+const int servoStart[4] = {90, 45, 90, 90};
+const int STEP_DEG      = 2;
+const unsigned long SERVO_INTERVAL = 20; // ms between servo steps
 
-// ── ARM ────────────────────────────────────────────────
-Servo arm;
-const int armPin = 9;
-const int minAngle_arm = 70;
-const int maxAngle_arm = 135;
-int currentAngle_arm = 90;
+Servo servos[NUM_SERVOS];
+int   servoAngle[NUM_SERVOS];
+int   servoDir[NUM_SERVOS]; // -1 = down, 0 = idle, +1 = up
 
-// ── FINGERS ────────────────────────────────────────────
-Servo fingers;
-const int fingersPin = 11;
-const int minAngle_fingers = 0;
-const int maxAngle_fingers = 180;
-int currentAngle_fingers =90;
+unsigned long lastServoTick = 0;
+unsigned long lastCommandTime = 0;
+const unsigned long WATCHDOG_TIMEOUT = 2000; // ms
 
-
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════
 void setup() {
   Serial.begin(9600);
-  //Initializing the motor pins as outputs
+
   pinMode(EN_A, OUTPUT);
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -58,275 +41,121 @@ void setup() {
   pinMode(IN4, OUTPUT);
   pinMode(EN_B, OUTPUT);
 
-  wrist.attach(wristPin);
-  wrist.write(currentAngle_wrist);
+  for (int i = 0; i < NUM_SERVOS; i++) {
+    servos[i].attach(servoPins[i]);
+    servoAngle[i] = servoStart[i];
+    servos[i].write(servoAngle[i]);
+    servoDir[i] = 0;
+  }
 
-  elbow.attach(elbowPin);
-  elbow.write(currentAngle_elbow);
-
-  hand.attach(handPin);
-  hand.write(currentAngle_hand);
-
-  arm.attach(armPin);
-  arm.write(currentAngle_arm);
-
-  fingers.attach(fingersPin);
-  fingers.write(currentAngle_fingers);
-
+  stopMotors();
   delay(500);
 }
 
+// ══════════════════════════════════════════════════════════
 void loop() {
-  if (Serial.available() > 0) {
-    while (Serial.available() > 0) {
-      c = Serial.read();
+  // ── Read serial: only act on the latest byte ──────────
+  char cmd = 0;
+  while (Serial.available() > 0) {
+    cmd = Serial.read();
+  }
+
+  if (cmd) {
+    handleCommand(cmd);
+    lastCommandTime = millis();
+  }
+
+  // ── Watchdog: stop everything if no command for 2s ──
+  unsigned long now = millis();
+  if (now - lastCommandTime > WATCHDOG_TIMEOUT) {
+    stopMotors();
+    for (int i = 0; i < NUM_SERVOS; i++) servoDir[i] = 0;
+    lastCommandTime = now; // prevent re-firing every loop
+  }
+
+  // ── Servo tick: step active servos every SERVO_INTERVAL ms ──
+  if (now - lastServoTick >= SERVO_INTERVAL) {
+    lastServoTick = now;
+    tickServos();
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+void handleCommand(char cmd) {
+  switch (cmd) {
+    // Tank
+    case 'M': driveForward();  break;
+    case 'N': driveBackward(); break;
+    case 'K': driveLeft();     break;
+    case 'L': driveRight();    break;
+    case 'O': stopMotors();    break;
+
+    // Servo start: uppercase = set direction
+    case 'A': servoDir[0] =  1; break; // Wrist up
+    case 'B': servoDir[0] = -1; break; // Wrist down
+    case 'C': servoDir[1] =  1; break; // Elbow up
+    case 'D': servoDir[1] = -1; break; // Elbow down
+    case 'G': servoDir[2] =  1; break; // Arm up
+    case 'H': servoDir[2] = -1; break; // Arm down
+    case 'I': servoDir[3] =  1; break; // Grip open
+    case 'J': servoDir[3] = -1; break; // Grip close
+
+    // Servo stop: lowercase = set idle
+    case 'a': servoDir[0] = 0; break;
+    case 'c': servoDir[1] = 0; break;
+    case 'g': servoDir[2] = 0; break;
+    case 'i': servoDir[3] = 0; break;
+  }
+}
+
+// ── Servo tick ──────────────────────────────────────────
+void tickServos() {
+  for (int i = 0; i < NUM_SERVOS; i++) {
+    if (servoDir[i] == 0) continue;
+
+    int next = servoAngle[i] + (servoDir[i] * STEP_DEG);
+    if (next < servoMin[i]) next = servoMin[i];
+    if (next > servoMax[i]) next = servoMax[i];
+
+    if (next != servoAngle[i]) {
+      servoAngle[i] = next;
+      servos[i].write(servoAngle[i]);
     }
-    Serial.println(c);
-    switch (c) {
-      // WRIST
-      case 'A':
-        wristUp();
-        break;
-      case 'B':
-        wristDown();
-        break;
-      // ELBOW
-      case 'C':
-        elbowUp();
-        break;
-      case 'D':
-        elbowDown();
-        break;
-      // HAND
-      case 'E':
-        handUp();
-        break;
-      case 'F':
-        handDown();
-        break;
-      // ARM
-      case 'G':
-        armUp();
-        break;
-      case 'H':
-        armDown();
-        break;
-      // FINGERS
-      case 'I':
-        fingersUp();
-        break;
-      case 'J':
-        fingersDown();
-        break;
-      case 'K':
-        turnLeft();
-        break;
-      case 'L':
-        turnRight();
-        break;
-      case 'M':
-        forward();
-        break;
-      case 'N':
-        backward();
-        break;
-      case 'O':
-        stop();
-        break;
-    }
   }
 }
 
-
-// ── WRIST FUNCTIONS ────────────────────────────────────
-void wristUp() {
-  if (currentAngle_wrist > maxAngle_wrist) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    wrist.write(currentAngle_wrist + stepDegrees);
-    delay(15);
-    currentAngle_wrist += stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_wrist);
-    Serial.println("°");
-  }
-}
-void wristDown() {
-  if (currentAngle_wrist < minAngle_wrist) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    wrist.write(currentAngle_wrist - stepDegrees);
-    delay(15);
-    currentAngle_wrist -= stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_wrist);
-    Serial.println("°");
-  }
+// ── Tank drive functions ────────────────────────────────
+void driveForward() {
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  analogWrite(EN_A, SPEED_L);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+  analogWrite(EN_B, SPEED_R);
 }
 
-// ── ELBOW FUNCTIONS ────────────────────────────────────
-void elbowUp() {
-  if (currentAngle_elbow > maxAngle_elbow) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    elbow.write(currentAngle_elbow + stepDegrees);
-    delay(15);
-    currentAngle_elbow += stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_elbow);
-    Serial.println("°");
-  }
-}
-void elbowDown() {
-  if (currentAngle_elbow < minAngle_elbow) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    elbow.write(currentAngle_elbow - stepDegrees);
-    delay(15);
-    currentAngle_elbow -= stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_elbow);
-    Serial.println("°");
-  }
+void driveBackward() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  analogWrite(EN_A, SPEED_L);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  analogWrite(EN_B, SPEED_R);
 }
 
-// ── HAND FUNCTIONS ─────────────────────────────────────
-void handUp() {
-  if (currentAngle_hand > maxAngle_hand) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    hand.write(currentAngle_hand + stepDegrees);
-    delay(15);
-    currentAngle_hand += stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_hand);
-    Serial.println("°");
-  }
-}
-void handDown() {
-  if (currentAngle_hand < minAngle_hand) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    hand.write(currentAngle_hand - stepDegrees);
-    delay(15);
-    currentAngle_hand -= stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_hand);
-    Serial.println("°");
-  }
+void driveLeft() {
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  analogWrite(EN_A, SPEED_L);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+  analogWrite(EN_B, SPEED_R);
 }
 
-// ── ARM FUNCTIONS ──────────────────────────────────────
-void armUp() {
-  if (currentAngle_arm > maxAngle_arm) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    arm.write(currentAngle_arm + stepDegrees);
-    delay(15);
-    currentAngle_arm += stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_arm);
-    Serial.println("°");
-  }
-}
-void armDown() {
-  if (currentAngle_arm < minAngle_arm) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    arm.write(currentAngle_arm - stepDegrees);
-    delay(15);
-    currentAngle_arm -= stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_arm);
-    Serial.println("°");
-  }
+void driveRight() {
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  analogWrite(EN_A, SPEED_L);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  analogWrite(EN_B, SPEED_R);
 }
 
-// ── FINGERS FUNCTIONS ──────────────────────────────────
-void fingersUp() {
-  if (currentAngle_fingers > maxAngle_fingers) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    fingers.write(currentAngle_fingers + stepDegrees);
-    delay(15);
-    currentAngle_fingers += stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_fingers);
-    Serial.println("°");
-  }
-}
-void fingersDown() {
-  if (currentAngle_fingers < minAngle_fingers) {
-    Serial.println("Already at limit, cannot move further.");
-    return;
-  } else {
-    fingers.write(currentAngle_fingers - stepDegrees);
-    delay(15);
-    currentAngle_fingers -= stepDegrees;
-    Serial.print("Moved to: ");
-    Serial.print(currentAngle_fingers);
-    Serial.println("°");
-  }
-}
-//Driving Functions
-void turnLeft() {
-  back_left();
-  forward_right();
-}
-void turnRight() {
-  forward_left();
-  back_right();
-}
-void forward() {
-  forward_left();
-  forward_right();
-}
-void backward() {
-  back_left();
-  back_right();
-}
-void stop(){
-  halt_left();
-  halt_right();
-  Serial.println("°");
-}
-
-void forward_left() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  analogWrite(EN_A, speedL);
-}
-void back_left() {
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  analogWrite(EN_A, speedL);
-}
-void halt_left() {
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
+void stopMotors() {
+  digitalWrite(IN1, LOW); digitalWrite(IN2, LOW);
   analogWrite(EN_A, 0);
-}
-void forward_right() {
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  analogWrite(EN_B, speedR);
-}
-void back_right() {
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  analogWrite(EN_B, speedR);
-}
-void halt_right() {
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+  digitalWrite(IN3, LOW); digitalWrite(IN4, LOW);
   analogWrite(EN_B, 0);
 }
