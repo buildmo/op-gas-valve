@@ -1,7 +1,6 @@
 #include <Servo.h>
 #define speedL 200
 #define speedR 220
-#define pause 100
 char c;
 // ── Tank ────────────────────────────────────────────── 
 int EN_A = 6;  //controls the speed of motor A
@@ -16,7 +15,7 @@ Servo wrist;
 const int wristPin = 10;
 const int minAngle_wrist = 45;
 const int maxAngle_wrist = 135;
-const int stepDegrees = 5;
+const int stepDegrees = 2;
 int currentAngle_wrist = 90;
 
 // ── ELBOW ──────────────────────────────────────────────
@@ -282,27 +281,18 @@ void fingersDown() {
 void turnLeft() {
   back_left();
   forward_right();
-  delay(pause);
-  stop();
-  
 }
 void turnRight() {
   forward_left();
   back_right();
-  delay(pause);
-  stop();
 }
 void forward() {
   forward_left();
   forward_right();
-  delay(pause);
-  stop();
 }
 void backward() {
   back_left();
   back_right();
-  delay(pause);
-  stop();
 }
 void stop(){
   halt_left();
