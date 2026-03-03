@@ -34,14 +34,14 @@ def run_gui(config=None):
 
     tank_row = Box(settings_bar, width="fill", align="top")
     Text(tank_row, text="Tank speed", align="left", width=10)
-    tank_slider = Slider(tank_row, start=100, end=2000, align="left")
-    tank_slider.value = 500
+    tank_slider = Slider(tank_row, start=25, end=200, align="left")
+    tank_slider.value = 100
     Text(tank_row, text="ms", align="left")
 
     arm_row = Box(settings_bar, width="fill", align="top")
     Text(arm_row, text="Arm speed", align="left", width=10)
-    arm_slider = Slider(arm_row, start=100, end=2000, align="left")
-    arm_slider.value = 500
+    arm_slider = Slider(arm_row, start=25, end=200, align="left")
+    arm_slider.value = 100
     Text(arm_row, text="ms", align="left")
 
     # ── Main panels (drive + arm side by side) ─────────
