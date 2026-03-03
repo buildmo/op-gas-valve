@@ -28,6 +28,22 @@ def run_gui(config=None):
 
     burst_timer = {"id": None}
 
+    # ── Settings bar (burst duration sliders) ──────────
+    # Created before panels so tkinter reserves space at the bottom first.
+    settings_bar = Box(app, align="bottom", width="fill")
+
+    tank_row = Box(settings_bar, width="fill", align="top")
+    Text(tank_row, text="Tank speed", align="left", width=10)
+    tank_slider = Slider(tank_row, start=100, end=2000, align="left")
+    tank_slider.value = 500
+    Text(tank_row, text="ms", align="left")
+
+    arm_row = Box(settings_bar, width="fill", align="top")
+    Text(arm_row, text="Arm speed", align="left", width=10)
+    arm_slider = Slider(arm_row, start=100, end=2000, align="left")
+    arm_slider.value = 500
+    Text(arm_row, text="ms", align="left")
+
     # ── Main panels (drive + arm side by side) ─────────
     panels = Box(app, align="top", width="fill", height="fill",
                  layout="grid")
@@ -99,21 +115,6 @@ def run_gui(config=None):
                    command=make_arm_burst(up_char, stop_char, label))
         PushButton(arm_grid, text="-", grid=[2, row], width=6, height=3,
                    command=make_arm_burst(down_char, stop_char, label))
-
-    # ── Settings bar (burst duration sliders) ──────────
-    settings_bar = Box(app, align="bottom", width="fill")
-
-    tank_row = Box(settings_bar, width="fill", align="top")
-    Text(tank_row, text="Tank speed", align="left", width=10)
-    tank_slider = Slider(tank_row, start=100, end=2000, align="left")
-    tank_slider.value = 500
-    Text(tank_row, text="ms", align="left")
-
-    arm_row = Box(settings_bar, width="fill", align="top")
-    Text(arm_row, text="Arm speed", align="left", width=10)
-    arm_slider = Slider(arm_row, start=100, end=2000, align="left")
-    arm_slider.value = 500
-    Text(arm_row, text="ms", align="left")
 
     app.display()
 
