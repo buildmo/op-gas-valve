@@ -59,8 +59,7 @@ def run_gui(config=None):
             send("O")
 
         btn.when_left_button_pressed = start
-        btn.when_left_button_released = stop
-        btn.update_command(lambda: None)
+        btn.update_command(stop)
 
     def bind_burst(btn, char):
         btn.when_left_button_pressed = None
