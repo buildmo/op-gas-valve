@@ -94,6 +94,22 @@ else
     fi
 fi
 
+# ── Auto-sync on boot ─────────────────────────────────────
+
+echo ""
+echo -e "${BOLD}Setting up auto-sync on boot...${NC}"
+
+REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
+CRON_LINE="@reboot cd $REPO_DIR && bash sync.sh >> sync.log 2>&1 &"
+
+if crontab -l 2>/dev/null | grep -qF "sync.sh"; then
+    echo -e "  Already configured ${CHECK}"
+else
+    printf "  Adding cron job..."
+    (crontab -l 2>/dev/null; echo "$CRON_LINE") | crontab -
+    echo -e " ${CHECK}"
+fi
+
 # ── Verify ───────────────────────────────────────────────
 
 echo ""
