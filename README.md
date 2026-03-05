@@ -17,10 +17,7 @@ Backup code for the OGV 3-day robotics challenge. This repo contains **milestone
   - [During the event](#during-the-event)
   - [Serial command reference](#serial-command-reference)
 - [Hardware assumptions](#hardware-assumptions)
-- [Arduino IDE setup](#arduino-ide-setup)
-  - [Option A: Arduino IDE (desktop app)](#option-a-arduino-ide-desktop-app--recommended-for-teams)
-  - [Option B: arduino-cli (command line)](#option-b-arduino-cli-command-line--used-by-the-test-script)
-- [Python dependencies](#python-dependencies)
+- [Software setup](#software-setup)
 - [File reference](#file-reference)
 
 ---
@@ -38,7 +35,10 @@ pi-fleet/
 ├── final_arduino/           Complete Arduino sketch (don't hand out)
 ├── final_gui/               Complete Python GUI (don't hand out)
 │
+├── setup.sh                 Installs all software on the Pi
 ├── test_milestones.sh       Verifies all code compiles / parses
+├── SETUP.md                 Software installation guide
+├── ARCHITECTURE.md          System architecture (give to Integration team)
 └── OGV Facilitator Guide & Ind Team Briefs.docx
 ```
 
@@ -160,51 +160,15 @@ These files assume the following pin assignments. If teams wire differently, the
 
 ---
 
-## Arduino IDE setup
+## Software setup
 
-Teams need the Arduino IDE to write, compile, and upload sketches to the Arduino. It's also how Tank and Arm teams will use the **Serial Monitor** to test their Day 1 milestone code.
-
-### Option A: Arduino IDE (desktop app — recommended for teams)
-
-1. Download from [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)
-2. Install on the Pi or team laptop
-3. Open a `.ino` file — the IDE opens the sketch automatically
-4. Select board: **Tools > Board** (e.g., Arduino Uno or Arduino Mega)
-5. Select port: **Tools > Port** (e.g., `/dev/ttyACM0`)
-6. Click **Upload** (arrow button) to compile and flash
-7. Click **Serial Monitor** (magnifying glass button) to send/receive characters — set baud to **9600**
-
-### Option B: arduino-cli (command line — used by the test script)
-
-Install on the Pi:
-```bash
-curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
-sudo mv bin/arduino-cli /usr/local/bin/
-arduino-cli core install arduino:avr
-```
-
-Compile and upload a sketch:
-```bash
-arduino-cli compile --fqbn arduino:avr:uno milestones/tank/1_motor_test
-arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:uno milestones/tank/1_motor_test
-```
-
-Open a serial monitor:
-```bash
-arduino-cli monitor -p /dev/ttyACM0 --config baudrate=9600
-```
-
-> **Note:** If using an Arduino Mega, replace `arduino:avr:uno` with `arduino:avr:mega:cpu=atmega2560` in all commands.
-
----
-
-## Python dependencies
-
-The GUI scripts require two packages. Install on the Pi:
+See **[SETUP.md](SETUP.md)** for full installation instructions, or run the setup script on each Pi:
 
 ```bash
-pip3 install guizero pyserial
+bash setup.sh
 ```
+
+This installs Python packages (guizero, pyserial, tkinter) and arduino-cli. See [SETUP.md](SETUP.md) for Arduino IDE desktop app instructions and manual install steps.
 
 ---
 

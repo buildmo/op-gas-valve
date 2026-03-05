@@ -6,8 +6,6 @@ This document is for the **Integration team**. It describes how every component 
 
 - [How the robot works (end to end)](#how-the-robot-works-end-to-end)
 - [Software setup](#software-setup)
-  - [Python (Pilot team — GUI)](#python-pilot-team--gui)
-  - [Arduino IDE (Tank + Arm teams)](#arduino-ide-tank--arm-teams)
 - [Team responsibilities and interfaces](#team-responsibilities-and-interfaces)
   - [Who builds what](#who-builds-what)
   - [How teams connect to each other](#how-teams-connect-to-each-other)
@@ -90,48 +88,13 @@ That's it. One USB cable carries all commands. One Arduino runs everything.
 
 ## Software setup
 
-### Python (Pilot team — GUI)
-
-The GUI runs on the Raspberry Pi using Python 3. Two packages are needed:
+See **[SETUP.md](SETUP.md)** for full installation instructions, or run the setup script on each Pi:
 
 ```bash
-# Check Python is installed (should be pre-installed on Pi OS)
-python3 --version
-
-# Install the GUI and serial libraries
-pip3 install guizero pyserial
+bash setup.sh
 ```
 
-- **guizero** — Simple GUI library (wraps Tkinter). Gives you buttons, sliders, and layout boxes.
-- **pyserial** — Talks to the Arduino over USB serial.
-
-To test that everything is installed:
-```bash
-python3 -c "from guizero import App; import serial; print('Ready')"
-```
-
-To run a GUI script:
-```bash
-python3 milestones/pilot/1_tank_gui.py
-```
-
-> **Common issue:** If you get `ModuleNotFoundError: No module named 'tkinter'`, install it with:
-> ```bash
-> sudo apt-get install python3-tk
-> ```
-
-### Arduino IDE (Tank + Arm teams)
-
-Teams need the Arduino IDE to write, compile, and upload code to the Arduino board.
-
-1. Download from [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software) and install
-2. Open a `.ino` file — the IDE opens the sketch automatically
-3. Select your board: **Tools > Board** (e.g., Arduino Uno or Arduino Mega)
-4. Select your port: **Tools > Port** (e.g., `/dev/ttyACM0`)
-5. Click **Upload** (arrow button) to compile and flash the Arduino
-6. Click **Serial Monitor** (magnifying glass) to send/receive characters — set baud to **9600**
-
-The Serial Monitor is how Tank and Arm teams will test their code on Day 1. Type a command character (e.g., `M` for forward) and hit Enter to see if the hardware responds.
+This installs Python packages (guizero, pyserial, tkinter) and arduino-cli. The Pilot team also needs the Arduino IDE desktop app — see [SETUP.md](SETUP.md) for download links and usage.
 
 ---
 
