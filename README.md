@@ -141,6 +141,44 @@ These files assume the following pin assignments. If teams wire differently, the
 
 ---
 
+## Arduino IDE setup
+
+Teams need the Arduino IDE to write, compile, and upload sketches to the Arduino. It's also how Tank and Arm teams will use the **Serial Monitor** to test their Day 1 milestone code.
+
+### Option A: Arduino IDE (desktop app — recommended for teams)
+
+1. Download from [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software)
+2. Install on the Pi or team laptop
+3. Open a `.ino` file — the IDE opens the sketch automatically
+4. Select board: **Tools > Board** (e.g., Arduino Uno or Arduino Mega)
+5. Select port: **Tools > Port** (e.g., `/dev/ttyACM0`)
+6. Click **Upload** (arrow button) to compile and flash
+7. Click **Serial Monitor** (magnifying glass button) to send/receive characters — set baud to **9600**
+
+### Option B: arduino-cli (command line — used by the test script)
+
+Install on the Pi:
+```bash
+curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/install.sh | sh
+sudo mv bin/arduino-cli /usr/local/bin/
+arduino-cli core install arduino:avr
+```
+
+Compile and upload a sketch:
+```bash
+arduino-cli compile --fqbn arduino:avr:uno milestones/tank/1_motor_test
+arduino-cli upload -p /dev/ttyACM0 --fqbn arduino:avr:uno milestones/tank/1_motor_test
+```
+
+Open a serial monitor:
+```bash
+arduino-cli monitor -p /dev/ttyACM0 --config baudrate=9600
+```
+
+> **Note:** If using an Arduino Mega, replace `arduino:avr:uno` with `arduino:avr:mega:cpu=atmega2560` in all commands.
+
+---
+
 ## Python dependencies
 
 The GUI scripts require two packages. Install on the Pi:
