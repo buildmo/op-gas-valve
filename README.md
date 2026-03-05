@@ -38,8 +38,7 @@ pi-fleet/
 ├── setup.sh                 Installs all software on the Pi
 ├── test_milestones.sh       Verifies all code compiles / parses
 ├── SETUP.md                 Software installation guide
-├── ARCHITECTURE.md          System architecture (give to Integration team)
-└── OGV Facilitator Guide & Ind Team Briefs.docx
+└── ARCHITECTURE.md          System architecture (give to Integration team)
 ```
 
 - **`milestones/`** — What you hand to teams. Each team folder has numbered files in the order you'd give them out.
