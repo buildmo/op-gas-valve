@@ -9,6 +9,7 @@ Everything you need to install on the Raspberry Pi before the event. Run the ins
 - [Arduino IDE (Tank + Arm teams)](#arduino-ide-tank--arm-teams)
   - [Option A: Desktop app (recommended for teams)](#option-a-desktop-app-recommended-for-teams)
   - [Option B: arduino-cli (command line)](#option-b-arduino-cli-command-line)
+- [Raspberry Pi Connect (Comms team)](#raspberry-pi-connect-comms-team)
 - [Verify everything works](#verify-everything-works)
 
 ---
@@ -21,7 +22,7 @@ On each Raspberry Pi, run:
 bash setup.sh
 ```
 
-This installs Python dependencies, tkinter, and arduino-cli in one go. See below for what it does and how to install things manually.
+This installs Python dependencies, tkinter, arduino-cli, and Raspberry Pi Connect in one go. See below for what it does and how to install things manually.
 
 ---
 
@@ -100,6 +101,51 @@ arduino-cli monitor -p /dev/ttyACM0 --config baudrate=9600
 ```
 
 > **Note:** If using an Arduino Mega, replace `arduino:avr:uno` with `arduino:avr:mega:cpu=atmega2560` in all commands.
+
+---
+
+## Raspberry Pi Connect (Comms team)
+
+[Raspberry Pi Connect](https://www.raspberrypi.com/documentation/services/connect.html) lets you remotely access a Pi's desktop or shell from a browser. The Comms team uses this to control Kelsey's Pi from AU during the mission.
+
+**Requirements:**
+- Raspberry Pi 4, Pi 400, or Pi 5
+- 64-bit Raspberry Pi OS Bookworm
+- A [Raspberry Pi ID](https://id.raspberrypi.com/) (free account)
+
+### Install
+
+Pi Connect comes pre-installed on Raspberry Pi OS Desktop (Bookworm). If it's missing:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y rpi-connect
+sudo reboot
+```
+
+### Link your Pi to your account
+
+1. After reboot, click the **Raspberry Pi Connect icon** in the menu bar (top-right)
+2. Select **"Turn On Raspberry Pi Connect"**
+3. Your browser opens — sign in with your Raspberry Pi ID
+4. The Pi is now linked to your account
+
+### Connect remotely
+
+1. On any computer, go to [connect.raspberrypi.com](https://connect.raspberrypi.com)
+2. Sign in with the same Raspberry Pi ID
+3. Click your Pi — you get a full remote desktop or shell in the browser
+
+### Test the link
+
+Both the AU Pi and Kelsey's Pi need to be set up and linked. To verify:
+
+1. Set up Pi Connect on **both** Pis using the steps above
+2. From the AU station, open [connect.raspberrypi.com](https://connect.raspberrypi.com)
+3. Connect to Kelsey's Pi — confirm you can see her desktop and control it
+4. Open a terminal on Kelsey's Pi via Connect and run a GUI script to verify the full chain works
+
+> **Comms team Day 1 HR6 deadline:** The RPC link must be live. If Pi Connect won't connect, check that both Pis are on the internet and signed into the same Raspberry Pi ID. Set up a backup channel (Teams, phone) in case the primary link drops.
 
 ---
 

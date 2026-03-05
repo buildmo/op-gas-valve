@@ -6,6 +6,7 @@
 #   - Python packages (guizero, pyserial)
 #   - tkinter (GUI framework)
 #   - arduino-cli (compile + upload Arduino sketches)
+#   - Raspberry Pi Connect (remote access for Comms team)
 #
 # Usage:
 #   bash setup.sh
@@ -77,6 +78,22 @@ else
     echo -e " ${CROSS}"
 fi
 
+# ── Raspberry Pi Connect ────────────────────────────────
+
+echo ""
+echo -e "${BOLD}Installing Raspberry Pi Connect...${NC}"
+
+if dpkg -l rpi-connect > /dev/null 2>&1; then
+    echo -e "  Already installed ${CHECK}"
+else
+    printf "  rpi-connect..."
+    if sudo apt-get install -y rpi-connect -qq > /dev/null 2>&1; then
+        echo -e " ${CHECK}"
+    else
+        echo -e " ${CROSS}  (may not be available on non-Bookworm OS)"
+    fi
+fi
+
 # ── Verify ───────────────────────────────────────────────
 
 echo ""
@@ -117,8 +134,18 @@ else
     echo -e " ${CROSS}"
 fi
 
+printf "  rpi-connect"
+if dpkg -l rpi-connect > /dev/null 2>&1; then
+    echo -e " ${CHECK}"
+else
+    echo -e " ${CROSS}  (install manually or use Bookworm OS)"
+fi
+
 echo ""
 echo -e "${BOLD}═══ Setup complete ═══${NC}"
 echo ""
-echo "Next: run 'bash test_milestones.sh' to verify all code compiles."
+echo "Next steps:"
+echo "  1. Run 'bash test_milestones.sh' to verify all code compiles"
+echo "  2. Open Pi Connect from the menu bar and link to your Raspberry Pi ID"
+echo "     (see SETUP.md for details)"
 echo ""
