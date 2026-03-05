@@ -72,16 +72,16 @@ void driveBackward() {
 }
 
 void driveLeft() {
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
   analogWrite(EN_A, SPEED_L);
-  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
   analogWrite(EN_B, SPEED_R);
 }
 
 void driveRight() {
-  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
   analogWrite(EN_A, SPEED_L);
-  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
   analogWrite(EN_B, SPEED_R);
 }
 

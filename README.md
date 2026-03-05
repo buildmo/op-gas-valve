@@ -55,13 +55,15 @@ Each milestone builds on the previous one. Only hand out a file if the team hasn
 
 | File | When to hand out | What it does |
 |---|---|---|
-| `1_motor_test/` | Day 1 HR5 — if motors aren't moving | Basic H-bridge test. Serial Monitor commands (M/N/K/L/O) with printed feedback. Teams can verify wiring and motor direction. |
+| `0_one_motor/` | Day 1 HR3 — if H-bridge wiring isn't working | Simplest possible: one motor, three commands (F/B/S). Proves wiring is correct before adding the second motor. |
+| `1_motor_test/` | Day 1 HR5 — if motors aren't moving | Both motors with Serial Monitor commands (M/N/K/L/O) and printed feedback. Teams can verify wiring and motor direction. |
 | `2_serial_control/` | **Day 2 HR3 (hard deadline)** — if tank isn't driving via code | Motor control with serial buffer drain. Ready for GUI integration. |
 
 ### Arm team (`milestones/arm/`)
 
 | File | When to hand out | What it does |
 |---|---|---|
+| `0_one_servo/` | Day 1 HR3 — if servo wiring isn't working | Simplest possible: one servo on pin 10, three commands (+/-/0). Proves servo power and wiring are correct before adding more. |
 | `1_servo_test/` | Day 1 HR5 — if servos aren't responding | Interactive servo tester. Select servo 1-4, nudge +/- 5 degrees via Serial Monitor. Verifies wiring and power. |
 | `2_serial_control/` | **Day 2 HR3 (hard deadline)** — if arm isn't moving via code | Servo control via serial commands (A/B, C/D, G/H, I/J), angle limits per joint, smooth 2-degree stepping. Ready for GUI integration. |
 
@@ -69,6 +71,7 @@ Each milestone builds on the previous one. Only hand out a file if the team hasn
 
 | File | When to hand out | What it does |
 |---|---|---|
+| `0_one_button_gui.py` | Day 1 HR3 — if serial connection isn't working | Simplest possible: one Forward button sending 'M' over serial. Proves Pi-to-Arduino communication works. |
 | `1_tank_gui.py` | Day 1 HR5 — if GUI framework isn't up | Minimal tank-only D-pad. Click a button, sends a character over serial. Enough to test tank driving. |
 | `1b_gui_framework.py` | Day 1 HR7 — if pilot team finishes tank early | Full window layout with tank D-pad (live) and arm panel (placeholder). Arm buttons print to console but don't send serial yet. Gets the UI structure ready for Day 2. |
 | `2_tank_burst_gui.py` | **Day 2 HR3 (hard deadline)** — if burst control isn't working | Tank GUI with burst timers (auto-stop after each click) and speed slider (25-200ms). Much smoother than raw button presses. |
@@ -130,6 +133,7 @@ All milestone files use the same serial protocol so they're interchangeable:
 | `K` | Tank left | `G` / `H` | Arm up / down |
 | `L` | Tank right | `I` / `J` | Grip open / close |
 | `O` | Tank stop | `a` `c` `g` `i` | Stop individual joint |
+| | | `1`-`5` | Set arm step size (degrees) |
 
 ---
 
@@ -175,10 +179,13 @@ This installs Python packages (guizero, pyserial, tkinter) and arduino-cli. See 
 
 | Path | Description |
 |---|---|
+| `milestones/tank/0_one_motor/` | Base — Single motor test (F/B/S) |
 | `milestones/tank/1_motor_test/` | Day 1 — H-bridge test with Serial Monitor feedback |
 | `milestones/tank/2_serial_control/` | Day 2 — Motor control for GUI integration |
+| `milestones/arm/0_one_servo/` | Base — Single servo test (+/-/0) |
 | `milestones/arm/1_servo_test/` | Day 1 — Interactive servo tester (select + nudge) |
 | `milestones/arm/2_serial_control/` | Day 2 — Servo control with limits and stepping |
+| `milestones/pilot/0_one_button_gui.py` | Base — One button forward test |
 | `milestones/pilot/1_tank_gui.py` | Day 1 — Minimal tank D-pad |
 | `milestones/pilot/1b_gui_framework.py` | Day 1 — Full layout with arm placeholders |
 | `milestones/pilot/2_tank_burst_gui.py` | Day 2 — Tank GUI with burst timers |

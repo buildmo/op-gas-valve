@@ -34,7 +34,7 @@ const int servoPins[4]  = {10, 12, 9, 11};
 const int servoMin[4]   = {45,  0, 70,  0};
 const int servoMax[4]   = {135, 90, 135, 180};
 const int servoStart[4] = {90, 45, 90, 90};
-const int STEP_DEG      = 2;
+int stepDeg             = 2;
 const unsigned long SERVO_INTERVAL = 20; // ms between servo steps
 
 Servo servos[NUM_SERVOS];
@@ -110,6 +110,13 @@ void handleCommand(char cmd) {
     case 'c': servoDir[1] = 0; break;
     case 'g': servoDir[2] = 0; break;
     case 'i': servoDir[3] = 0; break;
+
+    // Step size: '1'-'5' = degrees per tick
+    case '1': stepDeg = 1; break;
+    case '2': stepDeg = 2; break;
+    case '3': stepDeg = 3; break;
+    case '4': stepDeg = 4; break;
+    case '5': stepDeg = 5; break;
   }
 }
 
@@ -118,7 +125,7 @@ void tickServos() {
   for (int i = 0; i < NUM_SERVOS; i++) {
     if (servoDir[i] == 0) continue;
 
-    int next = servoAngle[i] + (servoDir[i] * STEP_DEG);
+    int next = servoAngle[i] + (servoDir[i] * stepDeg);
     if (next < servoMin[i]) next = servoMin[i];
     if (next > servoMax[i]) next = servoMax[i];
 
@@ -145,16 +152,16 @@ void driveBackward() {
 }
 
 void driveLeft() {
-  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
+  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
   analogWrite(EN_A, SPEED_L);
-  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
+  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
   analogWrite(EN_B, SPEED_R);
 }
 
 void driveRight() {
-  digitalWrite(IN1, LOW);  digitalWrite(IN2, HIGH);
+  digitalWrite(IN1, HIGH); digitalWrite(IN2, LOW);
   analogWrite(EN_A, SPEED_L);
-  digitalWrite(IN3, HIGH); digitalWrite(IN4, LOW);
+  digitalWrite(IN3, LOW);  digitalWrite(IN4, HIGH);
   analogWrite(EN_B, SPEED_R);
 }
 

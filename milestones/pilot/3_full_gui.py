@@ -7,7 +7,7 @@
 #
 # What changed from Day 2 HR3:
 #   - Arm controls added (+/- for Wrist, Elbow, Arm, Grip)
-#   - Separate speed sliders for tank and arm
+#   - Tank speed slider (burst duration) + arm step slider (degrees)
 #   - Unified burst timer for all controls
 #   - Proper cleanup on close (stops motors + all servos)
 #
@@ -40,7 +40,7 @@ def run_gui(config=None):
     # ── Burst timer helper ────────────────────────────────
     timers = {}
 
-    def make_burst(start_char, stop_char, key, slider):
+    def make_burst(start_char, stop_char, key, duration_ms):
         def stop():
             send(stop_char)
             timers.pop(key, None)
@@ -48,7 +48,8 @@ def run_gui(config=None):
             if key in timers:
                 app.cancel(timers[key])
             send(start_char)
-            timers[key] = app.after(int(slider.value), stop)
+            ms = int(duration_ms.value) if hasattr(duration_ms, 'value') else int(duration_ms)
+            timers[key] = app.after(ms, stop)
         return burst
 
     # ── Settings bar (burst duration sliders) ──────────
@@ -62,10 +63,15 @@ def run_gui(config=None):
     Text(tank_row, text="ms", align="left")
 
     arm_row = Box(settings_bar, width="fill", align="top")
-    Text(arm_row, text="Arm speed", align="left", width=10)
-    arm_slider = Slider(arm_row, start=25, end=200, align="left")
-    arm_slider.value = 100
-    Text(arm_row, text="ms", align="left")
+    Text(arm_row, text="Arm step", align="left", width=10)
+    arm_step_slider = Slider(arm_row, start=1, end=5, align="left")
+    arm_step_slider.value = 2
+    Text(arm_row, text="deg", align="left")
+
+    def on_arm_step_change(value):
+        send(str(int(float(value))))
+
+    arm_step_slider.update_command = on_arm_step_change
 
     # ── Main panels (drive + arm side by side) ─────────
     panels = Box(app, align="top", width="fill", height="fill",
@@ -116,9 +122,9 @@ def run_gui(config=None):
     for row, (label, (up, down, stop)) in enumerate(arm_cmds.items()):
         Text(arm_grid, text=label, grid=[0, row], width=8, align="left")
         PushButton(arm_grid, text="+", grid=[1, row], width=6, height=3,
-                   command=make_burst(up, stop, label, arm_slider))
+                   command=make_burst(up, stop, label, 50))
         PushButton(arm_grid, text="-", grid=[2, row], width=6, height=3,
-                   command=make_burst(down, stop, label, arm_slider))
+                   command=make_burst(down, stop, label, 50))
 
     # ── Cleanup on close ──────────────────────────────
     def on_close():

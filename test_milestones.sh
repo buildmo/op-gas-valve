@@ -141,6 +141,19 @@ if $UPLOAD; then
     fi
 fi
 
+# ── Base (starter code) ─────────────────────────────────
+
+section "Base (starter code)"
+
+label "TANK" "0_one_motor"
+test_ino "$DIR/milestones/tank/0_one_motor"
+
+label "ARM " "0_one_servo"
+test_ino "$DIR/milestones/arm/0_one_servo"
+
+label "PILOT" "0_one_button_gui"
+check_python "$DIR/milestones/pilot/0_one_button_gui.py"
+
 # ── Day 1 HR5 ───────────────────────────────────────────
 
 section "Day 1 HR5"
