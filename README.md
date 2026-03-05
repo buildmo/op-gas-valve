@@ -4,6 +4,25 @@ Backup code for the OGV 3-day robotics challenge. This repo contains **milestone
 
 **You should never need to give teams the final code directly.** The milestones are designed to be handed out incrementally when a team falls behind a hard deadline, so they can catch up without skipping the learning.
 
+## Table of Contents
+
+- [What's in this repo](#whats-in-this-repo)
+- [Milestone handout schedule](#milestone-handout-schedule)
+  - [Tank team](#tank-team-milestonestank)
+  - [Arm team](#arm-team-milestonesarm)
+  - [Pilot team](#pilot-team-milestonespilot)
+  - [Combined](#combined-milestonescombined)
+- [How to use this during the event](#how-to-use-this-during-the-event)
+  - [Before the event](#before-the-event)
+  - [During the event](#during-the-event)
+  - [Serial command reference](#serial-command-reference)
+- [Hardware assumptions](#hardware-assumptions)
+- [Arduino IDE setup](#arduino-ide-setup)
+  - [Option A: Arduino IDE (desktop app)](#option-a-arduino-ide-desktop-app--recommended-for-teams)
+  - [Option B: arduino-cli (command line)](#option-b-arduino-cli-command-line--used-by-the-test-script)
+- [Python dependencies](#python-dependencies)
+- [File reference](#file-reference)
+
 ---
 
 ## What's in this repo

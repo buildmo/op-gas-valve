@@ -2,6 +2,27 @@
 
 This document is for the **Integration team**. It describes how every component of the robot connects, what each team is responsible for, and how the pieces fit together. Use this to build your dependency map and track cross-team handoffs.
 
+## Table of Contents
+
+- [How the robot works (end to end)](#how-the-robot-works-end-to-end)
+- [Software setup](#software-setup)
+  - [Python (Pilot team — GUI)](#python-pilot-team--gui)
+  - [Arduino IDE (Tank + Arm teams)](#arduino-ide-tank--arm-teams)
+- [Team responsibilities and interfaces](#team-responsibilities-and-interfaces)
+  - [Who builds what](#who-builds-what)
+  - [How teams connect to each other](#how-teams-connect-to-each-other)
+- [Critical interfaces (what teams must agree on)](#critical-interfaces-what-teams-must-agree-on)
+  - [1. Serial protocol (Tank + Arm → Pilot)](#1-serial-protocol-tank--arm--pilot)
+  - [2. Physical mounting (Tank ↔ Arm)](#2-physical-mounting-tank--arm)
+  - [3. Gripper interface (Arm ↔ Grip)](#3-gripper-interface-arm--grip)
+  - [4. Power rails (Power → everyone)](#4-power-rails-power--everyone)
+- [Day-by-day integration timeline](#day-by-day-integration-timeline)
+  - [Day 1 — Build independently, verify interfaces](#day-1--build-independently-verify-interfaces)
+  - [Day 2 — Connect everything](#day-2--connect-everything)
+  - [Day 3 — Mission day](#day-3--mission-day)
+- [What can go wrong (and who fixes it)](#what-can-go-wrong-and-who-fixes-it)
+- [The one diagram that matters](#the-one-diagram-that-matters)
+
 ---
 
 ## How the robot works (end to end)
