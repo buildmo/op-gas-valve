@@ -1,12 +1,11 @@
 // ================================================================
 // TANK SERIAL CONTROL — Day 2 HR3 (Hard Deadline)
 // ================================================================
-// Purpose: Production-ready tank motor control with safety watchdog
+// Purpose: Tank motor control ready for GUI integration
 // Team:    Tank
 //
 // What changed from Day 1:
 //   - Serial buffer drain (reads latest command only, ignores stale)
-//   - 2-second watchdog auto-stops motors if no commands arrive
 //   - No Serial.println feedback (cleaner for GUI integration)
 //
 // Commands: M=forward  N=backward  K=left  L=right  O=stop
@@ -23,10 +22,6 @@ const int IN2  = 3;
 const int IN3  = 7;
 const int IN4  = 8;
 const int EN_B = 5;
-
-// ── Safety ──────────────────────────────────────────────
-unsigned long lastCommandTime = 0;
-const unsigned long WATCHDOG_TIMEOUT = 2000; // ms
 
 void setup() {
   Serial.begin(9600);
@@ -57,14 +52,6 @@ void loop() {
       case 'L': driveRight();    break;
       case 'O': stopMotors();    break;
     }
-    lastCommandTime = millis();
-  }
-
-  // Watchdog: auto-stop if no command for 2 seconds
-  unsigned long now = millis();
-  if (now - lastCommandTime > WATCHDOG_TIMEOUT) {
-    stopMotors();
-    lastCommandTime = now;
   }
 }
 

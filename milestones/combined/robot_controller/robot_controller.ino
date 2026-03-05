@@ -1,13 +1,12 @@
 // ================================================================
 // COMBINED ROBOT CONTROLLER — Day 2 HR5
 // ================================================================
-// Purpose: Full Arduino sketch — tank motors + arm servos + watchdog
+// Purpose: Full Arduino sketch — tank motors + arm servos
 // Teams:   Tank + Arm (combined)
 //
 // What changed from Day 2 HR3:
 //   - Tank and Arm code merged into one sketch
 //   - Single serial protocol handles both motor and servo commands
-//   - One watchdog covers everything
 //
 // Tank commands: M=forward  N=backward  K=left  L=right  O=stop
 // Arm commands:  A/B=wrist  C/D=elbow  G/H=arm  I/J=grip
@@ -43,8 +42,6 @@ int   servoAngle[NUM_SERVOS];
 int   servoDir[NUM_SERVOS]; // -1 = down, 0 = idle, +1 = up
 
 unsigned long lastServoTick = 0;
-unsigned long lastCommandTime = 0;
-const unsigned long WATCHDOG_TIMEOUT = 2000; // ms
 
 // ══════════════════════════════════════════════════════════
 void setup() {
@@ -78,18 +75,10 @@ void loop() {
 
   if (cmd) {
     handleCommand(cmd);
-    lastCommandTime = millis();
-  }
-
-  // ── Watchdog: stop everything if no command for 2s ──
-  unsigned long now = millis();
-  if (now - lastCommandTime > WATCHDOG_TIMEOUT) {
-    stopMotors();
-    for (int i = 0; i < NUM_SERVOS; i++) servoDir[i] = 0;
-    lastCommandTime = now; // prevent re-firing every loop
   }
 
   // ── Servo tick: step active servos every SERVO_INTERVAL ms ──
+  unsigned long now = millis();
   if (now - lastServoTick >= SERVO_INTERVAL) {
     lastServoTick = now;
     tickServos();

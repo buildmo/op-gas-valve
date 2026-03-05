@@ -39,10 +39,7 @@ This document is for the **Integration team**. It describes how every component 
            │         │                   │        │
            │    Drive functions    tickServos()    │
            │    (PWM + direction)  (2° steps,     │
-           │         │              20ms interval) │
-           │         │                   │        │
-           │    Watchdog: stops everything if      │
-           │    no command received for 2 seconds  │
+           │                        20ms interval) │
            └─────────┬───────────────────┬────────┘
                      │                   │
               ┌──────┴──────┐    ┌───────┴────────┐
@@ -264,10 +261,10 @@ Print this. Put it on the wall. Every team should know where they sit.
 └─────────┘               └─────────┘            └──────────┘
      │                         │                       │
      │                         │                       │
-  Pi Connect               Watchdog               ┌────┴────┐
-  to Kelsey's Pi           (2s timeout)           │  POWER  │
-  (Comms team)             auto-stops             │  3 rails │
-                           everything              └─────────┘
+  Pi Connect                                       ┌────┴────┐
+  to Kelsey's Pi                                  │  POWER  │
+  (Comms team)                                    │  3 rails │
+                                                   └─────────┘
 ```
 
-**If the GUI sends the right character, and the Arduino is running, and power is stable — the robot moves.** Everything else is making sure those three things are true.
+**If the GUI sends the right character, and the Arduino is running, and power is stable — the robot moves.** That's it. Everything else is making sure those three things are true.

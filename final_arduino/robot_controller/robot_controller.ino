@@ -27,8 +27,6 @@ int   servoAngle[NUM_SERVOS];
 int   servoDir[NUM_SERVOS]; // -1 = down, 0 = idle, +1 = up
 
 unsigned long lastServoTick = 0;
-unsigned long lastCommandTime = 0;
-const unsigned long WATCHDOG_TIMEOUT = 2000; // ms
 
 // ══════════════════════════════════════════════════════════
 void setup() {
@@ -62,18 +60,10 @@ void loop() {
 
   if (cmd) {
     handleCommand(cmd);
-    lastCommandTime = millis();
-  }
-
-  // ── Watchdog: stop everything if no command for 2s ──
-  unsigned long now = millis();
-  if (now - lastCommandTime > WATCHDOG_TIMEOUT) {
-    stopMotors();
-    for (int i = 0; i < NUM_SERVOS; i++) servoDir[i] = 0;
-    lastCommandTime = now; // prevent re-firing every loop
   }
 
   // ── Servo tick: step active servos every SERVO_INTERVAL ms ──
+  unsigned long now = millis();
   if (now - lastServoTick >= SERVO_INTERVAL) {
     lastServoTick = now;
     tickServos();

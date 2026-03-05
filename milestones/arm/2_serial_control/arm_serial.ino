@@ -1,15 +1,14 @@
 // ================================================================
 // ARM SERIAL CONTROL — Day 2 HR3 (Hard Deadline)
 // ================================================================
-// Purpose: Production-ready servo control with limits and smooth
-//          stepping for GUI integration
+// Purpose: Servo control with limits and smooth stepping for GUI
+//          integration
 // Team:    Arm
 //
 // What changed from Day 1:
 //   - Serial commands instead of manual +/- testing
 //   - Angle limits per joint (prevents mechanical damage)
 //   - Smooth stepping (2 deg every 20ms) instead of instant jumps
-//   - Watchdog auto-stops all servos if no commands for 2 seconds
 //
 // Commands:
 //   A/B = Wrist up/down       a = Wrist stop
@@ -35,8 +34,6 @@ int   servoAngle[NUM_SERVOS];
 int   servoDir[NUM_SERVOS]; // -1 = down, 0 = idle, +1 = up
 
 unsigned long lastServoTick = 0;
-unsigned long lastCommandTime = 0;
-const unsigned long WATCHDOG_TIMEOUT = 2000;
 
 void setup() {
   Serial.begin(9600);
@@ -60,18 +57,10 @@ void loop() {
 
   if (cmd) {
     handleCommand(cmd);
-    lastCommandTime = millis();
-  }
-
-  unsigned long now = millis();
-
-  // Watchdog: stop all servos if no command for 2 seconds
-  if (now - lastCommandTime > WATCHDOG_TIMEOUT) {
-    for (int i = 0; i < NUM_SERVOS; i++) servoDir[i] = 0;
-    lastCommandTime = now;
   }
 
   // Servo tick: step active servos every SERVO_INTERVAL ms
+  unsigned long now = millis();
   if (now - lastServoTick >= SERVO_INTERVAL) {
     lastServoTick = now;
     tickServos();

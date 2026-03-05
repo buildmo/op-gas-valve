@@ -38,14 +38,14 @@ Each milestone builds on the previous one. Only hand out a file if the team hasn
 | File | When to hand out | What it does |
 |---|---|---|
 | `1_motor_test/` | Day 1 HR5 — if motors aren't moving | Basic H-bridge test. Serial Monitor commands (M/N/K/L/O) with printed feedback. Teams can verify wiring and motor direction. |
-| `2_serial_control/` | **Day 2 HR3 (hard deadline)** — if tank isn't driving via code | Production motor control. Adds serial buffer drain and 2-second watchdog auto-stop. Ready for GUI integration. |
+| `2_serial_control/` | **Day 2 HR3 (hard deadline)** — if tank isn't driving via code | Motor control with serial buffer drain. Ready for GUI integration. |
 
 ### Arm team (`milestones/arm/`)
 
 | File | When to hand out | What it does |
 |---|---|---|
 | `1_servo_test/` | Day 1 HR5 — if servos aren't responding | Interactive servo tester. Select servo 1-4, nudge +/- 5 degrees via Serial Monitor. Verifies wiring and power. |
-| `2_serial_control/` | **Day 2 HR3 (hard deadline)** — if arm isn't moving via code | Production servo control. Serial commands (A/B, C/D, G/H, I/J), angle limits per joint, smooth 2-degree stepping, watchdog. Ready for GUI integration. |
+| `2_serial_control/` | **Day 2 HR3 (hard deadline)** — if arm isn't moving via code | Servo control via serial commands (A/B, C/D, G/H, I/J), angle limits per joint, smooth 2-degree stepping. Ready for GUI integration. |
 
 ### Pilot team (`milestones/pilot/`)
 
@@ -60,7 +60,7 @@ Each milestone builds on the previous one. Only hand out a file if the team hasn
 
 | File | When to hand out | What it does |
 |---|---|---|
-| `robot_controller/` | Day 2 HR5 — when Tank + Arm code needs to merge | Single Arduino sketch with motors + servos + watchdog. Hand to both teams when they need to combine their code onto one Arduino. |
+| `robot_controller/` | Day 2 HR5 — when Tank + Arm code needs to merge | Single Arduino sketch with motors + servos. Hand to both teams when they need to combine their code onto one Arduino. |
 
 ---
 
@@ -194,9 +194,9 @@ pip3 install guizero pyserial
 | Path | Description |
 |---|---|
 | `milestones/tank/1_motor_test/` | Day 1 — H-bridge test with Serial Monitor feedback |
-| `milestones/tank/2_serial_control/` | Day 2 — Motor control with watchdog |
+| `milestones/tank/2_serial_control/` | Day 2 — Motor control for GUI integration |
 | `milestones/arm/1_servo_test/` | Day 1 — Interactive servo tester (select + nudge) |
-| `milestones/arm/2_serial_control/` | Day 2 — Servo control with limits + stepping |
+| `milestones/arm/2_serial_control/` | Day 2 — Servo control with limits and stepping |
 | `milestones/pilot/1_tank_gui.py` | Day 1 — Minimal tank D-pad |
 | `milestones/pilot/1b_gui_framework.py` | Day 1 — Full layout with arm placeholders |
 | `milestones/pilot/2_tank_burst_gui.py` | Day 2 — Tank GUI with burst timers |
