@@ -1,6 +1,6 @@
 # Operation Gas Valve — System Architecture
 
-This document is for the **Integration team**. It describes how every component of the robot connects, what each team is responsible for, and how the pieces fit together. Use this to build your dependency map, track cross-team handoffs, and make informed Go/No-Go decisions.
+This document is for the **Integration team**. It describes how every component of the robot connects, what each team is responsible for, and how the pieces fit together. Use this to build your dependency map and track cross-team handoffs.
 
 ---
 
@@ -64,6 +64,53 @@ This document is for the **Integration team**. It describes how every component 
 **The signal chain:** GUI button click → serial character over USB → Arduino reads character → Arduino drives motors or moves servos.
 
 That's it. One USB cable carries all commands. One Arduino runs everything.
+
+---
+
+## Software setup
+
+### Python (Pilot team — GUI)
+
+The GUI runs on the Raspberry Pi using Python 3. Two packages are needed:
+
+```bash
+# Check Python is installed (should be pre-installed on Pi OS)
+python3 --version
+
+# Install the GUI and serial libraries
+pip3 install guizero pyserial
+```
+
+- **guizero** — Simple GUI library (wraps Tkinter). Gives you buttons, sliders, and layout boxes.
+- **pyserial** — Talks to the Arduino over USB serial.
+
+To test that everything is installed:
+```bash
+python3 -c "from guizero import App; import serial; print('Ready')"
+```
+
+To run a GUI script:
+```bash
+python3 milestones/pilot/1_tank_gui.py
+```
+
+> **Common issue:** If you get `ModuleNotFoundError: No module named 'tkinter'`, install it with:
+> ```bash
+> sudo apt-get install python3-tk
+> ```
+
+### Arduino IDE (Tank + Arm teams)
+
+Teams need the Arduino IDE to write, compile, and upload code to the Arduino board.
+
+1. Download from [https://www.arduino.cc/en/software](https://www.arduino.cc/en/software) and install
+2. Open a `.ino` file — the IDE opens the sketch automatically
+3. Select your board: **Tools > Board** (e.g., Arduino Uno or Arduino Mega)
+4. Select your port: **Tools > Port** (e.g., `/dev/ttyACM0`)
+5. Click **Upload** (arrow button) to compile and flash the Arduino
+6. Click **Serial Monitor** (magnifying glass) to send/receive characters — set baud to **9600**
+
+The Serial Monitor is how Tank and Arm teams will test their code on Day 1. Type a command character (e.g., `M` for forward) and hit Enter to see if the hardware responds.
 
 ---
 
@@ -207,20 +254,8 @@ Three isolated rails, all sharing a common ground bus:
 | HR1-2 | Close gaps from Day 1. Chief Engineer CAD session (Grip ↔ Arm interface). |
 | **HR3** | **HARD DEADLINE.** Tank must drive via code. Arm must move via code. If not: facilitator provides backup code. |
 | HR3-5 | Mount arm on tank. Route cables. Connect GUI to Arduino. Test end-to-end: GUI click → motor/servo moves. |
-| HR5-6 | Full system test on AU build. Fix issues. Start collecting Go/No-Go data. |
+| HR5-6 | Full system test on AU build. Fix issues. |
 | HR6-7 | Pilot runs Kelsey's robot via RPC. All controls tested. |
-| **HR7** | **GO/NO-GO DECISION.** |
-
-**Go/No-Go checklist:**
-
-| Question | GO means | NO-GO action |
-|---|---|---|
-| Remote-drive Kelsey's tank? | Pilot has driven it | Overnight troubleshoot or simplify |
-| Remote-control Kelsey's arm? | All DOF responding via GUI | Reduce to essential DOF |
-| Gripper engages valve? | Tested on real device | Adjust design or manual backup |
-| Power lasts full mission? | Endurance confirmed | Plan shorter mission window |
-| Comms reliable? | Backup channel also ready | Set up backup tonight |
-| GUI works on Kelsey's robot? | Tested directly | Overnight fix or swap GUI |
 
 ### Day 3 — Mission day
 
