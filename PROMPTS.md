@@ -2,6 +2,27 @@
 
 > **How to use this document:** When a team misses a milestone deadline, find the matching phase below and hand them the prompt to paste into Claude. They'll learn by prompting AI and understanding the generated output — don't just hand them raw code.
 
+## Table of Contents
+
+- [Phase 0: Base (Day 1 HR3)](#phase-0-base-day-1-hr3)
+  - [Tank Team — One Motor Test](#tank-team--one-motor-test)
+  - [Arm Team — One Servo Test](#arm-team--one-servo-test)
+  - [Pilot Team — One Button GUI](#pilot-team--one-button-gui)
+- [Phase 1: Day 1 HR5](#phase-1-day-1-hr5)
+  - [Tank Team — Two Motor Direction Test](#tank-team--two-motor-direction-test)
+  - [Arm Team — Four Servo Tester](#arm-team--four-servo-tester)
+  - [Pilot Team — Tank D-Pad GUI](#pilot-team--tank-d-pad-gui)
+- [Phase 1b: Day 1 HR7](#phase-1b-day-1-hr7)
+  - [Pilot Team — Add Arm Placeholder Buttons](#pilot-team--add-arm-placeholder-buttons)
+- [Phase 2: Day 2 HR3 (Hard Deadline)](#phase-2-day-2-hr3-hard-deadline)
+  - [Tank Team — Serial-Ready Tank Code](#tank-team--serial-ready-tank-code)
+  - [Arm Team — Serial-Ready Arm Code](#arm-team--serial-ready-arm-code)
+  - [Pilot Team — Tank Burst GUI](#pilot-team--tank-burst-gui)
+- [Phase 3: Day 2 HR5 (Integration)](#phase-3-day-2-hr5-integration)
+  - [Combined — Merge Tank + Arm Arduino Code](#combined--merge-tank--arm-arduino-code)
+  - [Pilot Team — Full GUI with Tank + Arm + Sliders](#pilot-team--full-gui-with-tank--arm--sliders)
+- [Quick Reference: Which Prompt to Give](#quick-reference-which-prompt-to-give)
+
 ---
 
 ## Phase 0: Base (Day 1 HR3)
